@@ -100,10 +100,20 @@ the most promising path to SIMD acceleration here.
   block boundary (0, 1, …, 63, 64, 65, …, 257, 300) and alphabets of size
   1/2/4/26;
 * a `FuzzDistance` differential + symmetry fuzzer (millions of executions);
-* the full suite is run **natively on amd64/arm64 and under QEMU on
-  riscv64, loong64, ppc64le, and big-endian s390x** in CI.
+* the full suite is run **natively on amd64/arm64, natively on real POWER10
+  silicon for ppc64le** (GCC Compile Farm, https://portal.cfarm.net/, Go 1.26.4,
+  June 2026), and under QEMU on riscv64, loong64, and big-endian s390x in CI.
 
 Test coverage is gated at **100%** on every architecture.
+
+This is a pure-Go bit-parallel algorithm, not vector SIMD, so there is no per-
+arch SIMD speedup to report. Beyond ppc64le's native POWER10 run, the code is now
+build- and test-validated on a **seventh architecture, ppc64 (big-endian)**, on
+real POWER9 silicon (GCC Compile Farm) — an additional endian-clean check on a
+big-endian target distinct from s390x, confirming the `uint64` shift/add column
+math is byte-order-independent. **s390x stays qemu-validated** for correctness
+(native run pending a GitHub-hosted IBM Z runner). The go-simd family's six SIMD
+targets are here validated on seven architectures.
 
 ## License
 
