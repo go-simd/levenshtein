@@ -75,6 +75,14 @@ the strings exceed a word.
 > Numbers are indicative and machine-dependent; reproduce with
 > `go test -run=xxx -bench=. -benchmem`.
 
+The same advantage carries to other architectures because it is the bit-parallel
+*algorithm* doing the work, not vector hardware. Measured on real riscv64
+(SpacemiT X60, RVV 1.0, GCC Compile Farm, Go 1.26.4, June 2026), `Distance/1024`
+runs in **~297 µs vs agnivade's ~17.8 ms — about 60× faster** on that core. This
+is an endian-clean bit-parallel `uint64` result, not a SIMD speedup: the X60 is a
+low-power in-order RVV core, but the column update never leaves scalar `uint64`
+ops, so the win is the algorithm, independent of the vector unit.
+
 ## Why pure Go, not assembly?
 
 The single-word path (≤ 64 bytes) is already optimal scalar `uint64` bitops —
@@ -101,13 +109,16 @@ the most promising path to SIMD acceleration here.
   1/2/4/26;
 * a `FuzzDistance` differential + symmetry fuzzer (millions of executions);
 * the full suite is run **natively on amd64/arm64, natively on real POWER10
-  silicon for ppc64le** (GCC Compile Farm, https://portal.cfarm.net/, Go 1.26.4,
-  June 2026), and under QEMU on riscv64, loong64, and big-endian s390x in CI.
+  silicon for ppc64le, and natively on a real SpacemiT X60 (RVV 1.0) for
+  riscv64** (GCC Compile Farm, https://portal.cfarm.net/, Go 1.26.4,
+  June 2026), and under QEMU on loong64 and big-endian s390x in CI.
 
 Test coverage is gated at **100%** on every architecture.
 
 This is a pure-Go bit-parallel algorithm, not vector SIMD, so there is no per-
-arch SIMD speedup to report. Beyond ppc64le's native POWER10 run, the code is now
+arch SIMD speedup to report (the riscv64 ~60×-vs-agnivade figure above is the
+bit-parallel algorithm on a real X60, not a vector win). Beyond ppc64le's native
+POWER10 run and riscv64's native X60 run, the code is now
 build- and test-validated on a **seventh architecture, ppc64 (big-endian)**, on
 real POWER9 silicon (GCC Compile Farm) — an additional endian-clean check on a
 big-endian target distinct from s390x, confirming the `uint64` shift/add column
