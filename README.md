@@ -77,7 +77,7 @@ the strings exceed a word.
 
 The same advantage carries to other architectures because it is the bit-parallel
 *algorithm* doing the work, not vector hardware. Measured on real riscv64
-(SpacemiT X60, RVV 1.0, GCC Compile Farm, Go 1.26.4, June 2026), `Distance/1024`
+(SpacemiT X60, RVV 1.0, GCC Compile Farm, Go 1.26.4, 2026-06-26), `Distance/1024`
 runs in **~297 µs vs agnivade's ~17.8 ms — about 60× faster** on that core. This
 is an endian-clean bit-parallel `uint64` result, not a SIMD speedup: the X60 is a
 low-power in-order RVV core, but the column update never leaves scalar `uint64`
@@ -108,17 +108,17 @@ the most promising path to SIMD acceleration here.
   block boundary (0, 1, …, 63, 64, 65, …, 257, 300) and alphabets of size
   1/2/4/26;
 * a `FuzzDistance` differential + symmetry fuzzer (millions of executions);
-* the full suite is run **natively on amd64/arm64, natively on real POWER10
+* the full suite is run **natively on amd64/arm64, natively on real POWER9
   silicon for ppc64le, and natively on a real SpacemiT X60 (RVV 1.0) for
   riscv64** (GCC Compile Farm, https://portal.cfarm.net/, Go 1.26.4,
-  June 2026), and under QEMU on loong64 and big-endian s390x in CI.
+  2026-06-26), and under QEMU on loong64 and big-endian s390x in CI.
 
 Test coverage is gated at **100%** on every architecture.
 
 This is a pure-Go bit-parallel algorithm, not vector SIMD, so there is no per-
 arch SIMD speedup to report (the riscv64 ~60×-vs-agnivade figure above is the
 bit-parallel algorithm on a real X60, not a vector win). Beyond ppc64le's native
-POWER10 run and riscv64's native X60 run, the code is now
+POWER9 run and riscv64's native X60 run, the code is now
 build- and test-validated on a **seventh architecture, ppc64 (big-endian)**, on
 real POWER9 silicon (GCC Compile Farm) — an additional endian-clean check on a
 big-endian target distinct from s390x, confirming the `uint64` shift/add column
