@@ -122,9 +122,17 @@ POWER9 run and riscv64's native X60 run, the code is now
 build- and test-validated on a **seventh architecture, ppc64 (big-endian)**, on
 real POWER9 silicon (GCC Compile Farm) — an additional endian-clean check on a
 big-endian target distinct from s390x, confirming the `uint64` shift/add column
-math is byte-order-independent. **s390x stays qemu-validated** for correctness
-(native run pending a GitHub-hosted IBM Z runner). The go-simd family's six SIMD
-targets are here validated on seven architectures.
+math is byte-order-independent.
+
+**s390x — measured on real z15** (LPAR guest, VXE2, Ubuntu 6.8, go1.26.4,
+2026-07-03): the bit-parallel column DP hits **52.9× Agnivade at n=1024**
+(60.4 µs vs 3194 µs) and **46.8× the O(mn) reference DP** (60.4 µs vs
+2829 µs) — the biggest win in the whole go-simd family on real z, since
+the DP is memory-heavy and z15's VXE2 pipeline eats the shift/add columns.
+At n=16 the win is 8.6× vs ReferenceDP. So the go-simd family's six SIMD
+targets are validated on **eight architectures** — with real perf numbers
+on five of them (amd64, arm64, ppc64le, riscv64, s390x) and build+test on
+loong64 + ppc64 big-endian.
 
 ## License
 
